@@ -9,13 +9,28 @@
 <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 
 <style>
-:root { --accent:#007bff; --danger:#ff4d4d; --bg:#000; --card:#111; --border:rgba(255,255,255,0.1); }
+:root{
+--accent:#007bff;
+--danger:#ff4d4d;
+--bg:#000;
+--card:#111;
+--border:rgba(255,255,255,0.1);
+}
+
 *{box-sizing:border-box;margin:0;padding:0;}
 
 body{
 font-family:-apple-system,system-ui,sans-serif;
 background:radial-gradient(circle at center,#1a1a1a 0%,#000 100%);
-color:#fff;padding:15px;
+color:#fff;
+padding:15px;
+overflow:hidden;
+}
+
+/* BLOKADA ZAZNACZANIA */
+body{
+-webkit-user-select:none;
+user-select:none;
 }
 
 .main-wrapper{
@@ -35,6 +50,209 @@ display:flex;
 flex-direction:column;
 box-shadow:0 20px 40px rgba(0,0,0,0.5);
 }
+
+h1{
+font-size:26px;
+text-align:center;
+margin-bottom:10px;
+}
+
+.upload-info{
+text-align:center;
+font-size:13px;
+color:#00ff88;
+margin-bottom:8px;
+font-weight:bold;
+}
+
+.uploader-wrapper{
+display:flex;
+justify-content:center;
+margin-bottom:15px;
+}
+
+#fileList{
+list-style:none;
+overflow-y:auto;
+flex-grow:1;
+}
+
+#fileList li{
+background:#181818;
+padding:10px 15px;
+border-radius:14px;
+margin-bottom:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border:1px solid var(--border);
+}
+
+.btn-download{
+background:var(--accent);
+color:white;
+text-decoration:none;
+padding:7px 12px;
+border-radius:8px;
+font-weight:bold;
+font-size:11px;
+}
+
+.btn-delete{
+background:#111;
+border:1px solid var(--danger);
+color:var(--danger);
+cursor:pointer;
+padding:7px;
+border-radius:8px;
+}
+
+/* MODAL */
+#adminModal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.95);
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.modal-box{
+background:#1a1a1a;
+padding:30px;
+border-radius:20px;
+width:300px;
+text-align:center;
+border:1px solid var(--border);
+}
+
+.modal-box input{
+width:100%;
+padding:10px;
+margin:15px 0;
+border-radius:10px;
+border:none;
+text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="main-wrapper">
+<div class="column">
+
+<h1>😈 a_tluscik</h1>
+
+<div class="upload-info">wrzuć swój plik na listę</div>
+
+<div class="uploader-wrapper">
+<input type="hidden"
+role="uploadcare-uploader"
+id="uploader"
+data-public-key="6b42d984d10961c51a51" />
+</div>
+
+<ul id="fileList"></ul>
+
+</div>
+</div>
+
+<!-- MODAL USUWANIA -->
+<div id="adminModal">
+<div class="modal-box">
+<h3 style="color:#ff4d4d;">🔒 Autoryzacja</h3>
+<input type="password" id="adminPassInput" placeholder="Podaj hasło">
+<button onclick="confirmDelete()" style="width:100%;background:#ff4d4d;color:#fff;padding:10px;border:none;border-radius:10px;cursor:pointer;">
+USUŃ
+</button>
+<button onclick="closeModal()" style="margin-top:10px;background:none;border:none;color:#666;cursor:pointer;">
+Anuluj
+</button>
+</div>
+</div>
+
+<script>
+const PASS="ok123123";
+
+const SUPABASE_URL='https://evmuryxvdfcuauisgxye.supabase.co';
+const SUPABASE_KEY='sb_publishable_BdjYm6QVu8AX4rKWrEmSeA_EiLCbVNn';
+
+const _supabase=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const widget=uploadcare.Widget('#uploader');
+const listElement=document.getElementById('fileList');
+
+let fileToDeleteId=null;
+
+/* UPLOAD */
+widget.onUploadComplete(async(info)=>{
+await _supabase.from('pliki').insert([{name:info.name,url:info.originalUrl}]);
+widget.value(null);
+loadFiles();
+});
+
+/* ŁADOWANIE PLIKÓW */
+async function loadFiles(){
+const {data,error}=await _supabase.from('pliki').select('*').order('created_at',{ascending:false});
+
+if(!error){
+listElement.innerHTML=data.length?'':'<li style="color:#444;border:none;justify-content:center;">Brak nowych plików</li>';
+
+data.forEach(file=>{
+const li=document.createElement('li');
+li.innerHTML=`
+<span style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+${file.name}
+</span>
+<div style="display:flex;gap:8px;">
+<button class="btn-delete" onclick="openDeleteModal('${file.id}')">🗑️</button>
+<a href="${file.url}" class="btn-download" target="_blank">Pobierz</a>
+</div>
+`;
+listElement.appendChild(li);
+});
+}
+}
+
+/* MODAL */
+function openDeleteModal(id){
+fileToDeleteId=id;
+document.getElementById('adminModal').style.display='flex';
+document.getElementById('adminPassInput').value='';
+}
+
+function closeModal(){
+document.getElementById('adminModal').style.display='none';
+}
+
+async function confirmDelete(){
+if(document.getElementById('adminPassInput').value===PASS){
+await _supabase.from('pliki').delete().eq('id',fileToDeleteId);
+closeModal();
+loadFiles();
+}else{
+alert("Złe hasło!");
+}
+}
+
+/* BLOKADY */
+document.addEventListener('contextmenu',e=>e.preventDefault());
+
+document.addEventListener('keydown',e=>{
+if(
+e.keyCode==123 ||
+(e.ctrlKey && e.shiftKey && [73,74,67].includes(e.keyCode)) ||
+(e.ctrlKey && e.keyCode==85)
+){
+e.preventDefault();
+}
+});
+
+loadFiles();
+</script>
+
+</body>
+</html>}
 
 h1{font-size:26px;text-align:center;margin-bottom:10px;}
 
@@ -145,3 +363,4 @@ loadFiles();
 </script>
 </body>
 </html>
+
