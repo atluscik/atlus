@@ -1,166 +1,147 @@
 <!DOCTYPE html>
 <html lang="pl-PL">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>a_tluscik</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😈</text></svg>">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>a_tluscik</title>
 
-    <style>
-        :root { --accent: #007bff; --danger: #ff4d4d; --bg: #000000; --card: #111111; --border: rgba(255, 255, 255, 0.1); }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: -apple-system, system-ui, sans-serif;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%); 
-            color: #fff; padding: 15px; overflow-x: hidden;
-            -webkit-user-select: none; user-select: none;
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 
-        .main-wrapper {
-            display: flex; flex-direction: row; justify-content: center;
-            align-items: flex-start; gap: 15px; width: 100%; max-width: 100%; margin: 0 auto;
-        }
+<style>
+:root { --accent:#007bff; --danger:#ff4d4d; --bg:#000; --card:#111; --border:rgba(255,255,255,0.1); }
+*{box-sizing:border-box;margin:0;padding:0;}
 
-        @media (max-width: 1300px) {
-            .main-wrapper { flex-direction: column; align-items: center; }
-            .column { width: 100% !important; max-width: 800px; height: 700px !important; }
-        }
+body{
+font-family:-apple-system,system-ui,sans-serif;
+background:radial-gradient(circle at center,#1a1a1a 0%,#000 100%);
+color:#fff;padding:15px;
+}
 
-        .column {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 24px; padding: 20px; height: 90vh;
-            display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
+.main-wrapper{
+display:flex;
+justify-content:center;
+align-items:center;
+height:95vh;
+}
 
-        .side { width: 37%; }
-        .center { width: 26%; border-color: var(--accent); box-shadow: 0 0 25px rgba(0, 123, 255, 0.15); }
+.column{
+width:500px;
+background:var(--card);
+border:1px solid var(--border);
+border-radius:24px;
+padding:20px;
+display:flex;
+flex-direction:column;
+box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
 
-        h1 { font-size: 26px; margin-bottom: 5px; text-align: center; }
-        h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); text-align: center; }
+h1{font-size:26px;text-align:center;margin-bottom:10px;}
 
-        .upload-info { text-align: center; font-size: 13px; color: #00ff88; margin-bottom: 8px; font-weight: bold; }
-        .uploader-wrapper { display: flex; justify-content: center; margin-bottom: 15px; min-height: 50px; }
+.upload-info{
+text-align:center;
+font-size:13px;
+color:#00ff88;
+margin-bottom:8px;
+font-weight:bold;
+}
 
-        .frame-container {
-            flex-grow: 1; width: 100%; background: #fff;
-            border-radius: 16px; overflow: hidden; border: 2px solid #222;
-        }
+.uploader-wrapper{
+display:flex;
+justify-content:center;
+margin-bottom:15px;
+}
 
-        iframe { width: 100%; height: 100%; border: none; }
+#fileList{
+list-style:none;
+overflow-y:auto;
+flex-grow:1;
+}
 
-        #fileList { list-style: none; overflow-y: auto; flex-grow: 1; }
-        #fileList li { 
-            background: #181818; padding: 10px 15px; border-radius: 14px; 
-            margin-bottom: 8px; display: flex; justify-content: space-between; 
-            align-items: center; border: 1px solid var(--border);
-        }
+#fileList li{
+background:#181818;
+padding:10px 15px;
+border-radius:14px;
+margin-bottom:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border:1px solid var(--border);
+}
 
-        .btn-download { background: var(--accent); color: white; text-decoration: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; }
-        .btn-delete { background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.3); color: var(--danger); cursor: pointer; padding: 7px; border-radius: 8px; }
+.btn-download{
+background:var(--accent);
+color:white;
+text-decoration:none;
+padding:7px 12px;
+border-radius:8px;
+font-weight:bold;
+font-size:11px;
+}
 
-        #adminModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(5px); }
-        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 28px; border: 1px solid var(--border); width: 340px; text-align: center; }
-        input[type="password"] { width: 100%; padding: 14px; margin: 20px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: #fff; text-align: center; font-size: 18px; }
-    </style>
+.btn-delete{
+background:rgba(255,77,77,0.05);
+border:1px solid rgba(255,77,77,0.3);
+color:var(--danger);
+cursor:pointer;
+padding:7px;
+border-radius:8px;
+}
+</style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-    <div class="main-wrapper">
-        <div class="column side">
-            <h2>🗓️ Plan Lekcji 2H</h2>
-            <div class="frame-container">
-                <iframe src="https://api.allorigins.win/raw?url=https://plan.zse.bydgoszcz.pl/plany/o10.html"></iframe>
-            </div>
-        </div>
+<div class="main-wrapper">
+<div class="column">
+<h1>😈 a_tluscik</h1>
 
-        <div class="column center">
-            <h1>😈 a_tluscik</h1>
-            <div class="upload-info">wrzuć swój plik na listę</div>
-            <div class="uploader-wrapper">
-                <input type="hidden" role="uploadcare-uploader" id="uploader" data-public-key="6b42d984d10961c51a51" />
-            </div>
-            <p style="text-align: center; color: #555; font-size: 12px; margin-bottom: 12px;">MAGAZYN KLASY 2H</p>
-            <ul id="fileList"></ul>
-        </div>
+<div class="upload-info">wrzuć swój plik na listę</div>
 
-        <div class="column side">
-            <h2>⚠️ Zastępstwa</h2>
-            <div class="frame-container">
-                <iframe src="https://api.allorigins.win/raw?url=https://zastepstwa.zse.bydgoszcz.pl"></iframe>
-            </div>
-        </div>
-    </div>
+<div class="uploader-wrapper">
+<input type="hidden" role="uploadcare-uploader"
+id="uploader"
+data-public-key="6b42d984d10961c51a51" />
+</div>
 
-    <div id="adminModal">
-        <div class="modal-content">
-            <h3 style="color: var(--danger);">🔒 Wymagana Autoryzacja</h3>
-            <input type="password" id="adminPassInput" placeholder="Podaj hasło">
-            <button onclick="confirmDelete()" style="width:100%; background:var(--danger); color:#fff; padding:14px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;">USUŃ NA ZAWSZE</button>
-            <button onclick="closeModal()" style="background:none; color:#666; border:none; margin-top:15px; cursor:pointer;">Anuluj</button>
-        </div>
-    </div>
+<ul id="fileList"></ul>
+</div>
+</div>
 
 <script>
-    const PASS = "ok123123";
-    const SUPABASE_URL = 'https://evmuryxvdfcuauisgxye.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_BdjYm6QVu8AX4rKWrEmSeA_EiLCbVNn';
+const PASS="ok123123";
+const SUPABASE_URL='https://evmuryxvdfcuauisgxye.supabase.co';
+const SUPABASE_KEY='sb_publishable_BdjYm6QVu8AX4rKWrEmSeA_EiLCbVNn';
 
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const widget = uploadcare.Widget('#uploader');
-    const listElement = document.getElementById('fileList');
-    let fileToDeleteId = null;
+const _supabase=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const widget=uploadcare.Widget('#uploader');
+const listElement=document.getElementById('fileList');
+let fileToDeleteId=null;
 
-    // Fix na zacinający się widget - czyści go po uploadzie
-    widget.onUploadComplete(async (info) => {
-        await _supabase.from('pliki').insert([{ name: info.name, url: info.originalUrl }]);
-        widget.value(null); // To czyści napis z nazwą pliku z ekranu
-        loadFiles();
-    });
+widget.onUploadComplete(async(info)=>{
+await _supabase.from('pliki').insert([{name:info.name,url:info.originalUrl}]);
+widget.value(null);
+loadFiles();
+});
 
-    async function loadFiles() {
-        const { data, error } = await _supabase.from('pliki').select('*').order('created_at', { ascending: false });
-        if (!error) {
-            listElement.innerHTML = data.length ? '' : '<li style="color:#444; border:none; justify-content:center;">Brak nowych plików</li>';
-            data.forEach(file => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span style="font-size:12px; max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${file.name}</span>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn-delete" onclick="openDeleteModal('${file.id}')">🗑️</button>
-                    <a href="${file.url}" class="btn-download" target="_blank">Pobierz</a>
-                </div>`;
-                listElement.appendChild(li);
-            });
-        }
-    }
+async function loadFiles(){
+const {data,error}=await _supabase.from('pliki').select('*').order('created_at',{ascending:false});
+if(!error){
+listElement.innerHTML=data.length?'':'<li style="color:#444;border:none;justify-content:center;">Brak nowych plików</li>';
+data.forEach(file=>{
+const li=document.createElement('li');
+li.innerHTML=`
+<span style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+${file.name}
+</span>
+<div style="display:flex;gap:8px;">
+<a href="${file.url}" class="btn-download" target="_blank">Pobierz</a>
+</div>`;
+listElement.appendChild(li);
+});
+}
+}
 
-    function openDeleteModal(id) {
-        fileToDeleteId = id;
-        document.getElementById('adminModal').style.display = 'flex';
-        document.getElementById('adminPassInput').value = '';
-    }
-
-    function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
-
-    async function confirmDelete() {
-        if (document.getElementById('adminPassInput').value === PASS) {
-            await _supabase.from('pliki').delete().eq('id', fileToDeleteId);
-            closeModal();
-            loadFiles();
-        } else { alert("Złe hasło!"); }
-    }
-
-    // Blokady konsoli
-    document.addEventListener('keydown', e => {
-        if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode == 85)) e.preventDefault();
-    });
-
-    loadFiles();
+loadFiles();
 </script>
 </body>
 </html>
-
-
