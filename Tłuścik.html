@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pl-PL">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ankieta dotycząca korzystania z gier</title>
+    <script>
+        function walidacja()
+        {
+            let email = document.getElementById("email").value.trim()
+            let haslo = document.getElementById("password").value
+            let wyksztalcenie = document.querySelector('input[name="wykształcenie"]')
+            let sprzet = document.querySelectorAll('input[name="checkboxy"]')
+            let czas = document.getElementById("czas").value
+            let gry = document.getElementById("gry")
+            if(haslo.lenght < 8)
+            {
+                window.alert("Hasło musi posiadać przynajmniej 8 znaków")
+                return false;
+            }
+            if(email.endsWith(".") || email.startWith("."))
+            {
+                window.alert("Prosze podać wartość po kropce lub przed nią")
+                return false
+            }
+            let liczbaM = 0
+            for(let i = 0;i < email;i++)
+            {
+                if(email[i] == "@")
+                {
+                    liczbaM = liczbaM + 1
+                }
+            }
+            if(liczbaM > 1)
+            {
+                window.alert("Liczba @ nie może przekraczać 2")
+                return false
+            }
+            
+            
+                let niegramwgry = false
+                if(czas > 0 && gry.checked)
+            {
+                window.alert("Nie można grać, mając zaznaczone Pole Nie gram w gry")
+                return false
+            }
+            
+
+
+        }
+    </script>
+</head>
+<body>
+    <form name="formularz" onsubmit="walidacja()">
+    <label>1.Jaki masz adres email?</label><br>
+        <input type="email" placeholder="name@example.com" name="email" id="email" required><br>
+    <label>2.Kiedy się urodziłeś?</label><br>
+        <input type="date" id="data" required><br>
+    <label>3.Jakiej jesteś płci?</label><br>
+    <select id="plec">
+        <option id="-">-</option>
+        <option id="m">Kobieta</option>
+        <option id="k">Mężczyzna</option>
+    </select><br>
+    <label>4.Jakie masz wykształcenie?</label><br>
+        <input type="radio" name="wykształcenie" id="Brak"><label for="Brak">Brak</label><br>
+        <input type="radio" name="wykształcenie" id="Niższe"><label for="Niższe" >Niższe</label><br>
+        <input type="radio" name="wykształcenie" id="Średnie"><label for="Średnie">Średnie</label><br>
+        <input type="radio" name="wykształcenie" id="Wyższe"><label for="Wyższe">Wyższe</label><br>
+    <label>5.Na jakim sprzęcie grasz w gry?</label><br>
+        <input type="checkbox" name="checkboxy"><label>PC</label><br>
+        <input type="checkbox" name="checkboxy"><label>Konsola stacjonarna</label><br>
+        <input type="checkbox" name="checkboxy"><label>Konsola przenośna</label><br>
+        <input type="checkbox" name="checkboxy"><label>Smartfon</label><br>
+        <input type="checkbox" name="checkboxy" id="gry"><label>nie gram w gry</label><br>
+    <label>6. Ile czasu dziennie zajmuje Ci granie w gry?</label><br>
+        <input type="number" min="0" max="24" value="0" id="czas"><br>
+    <label>7.Jakie jest hasło do Twojego konta?</label><br>
+    <input type="password" required id="password"><br><br>
+    <input type="submit" value="Wyślij">
+    </form>
+    
+</body>
+</html>
